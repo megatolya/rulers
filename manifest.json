@@ -1,7 +1,7 @@
 {
-    "name": "DevToolsPanel",
-    "version": "0.1",
-    "description": "A bare-bones example of communication between devtools and an inspected page",
+    "name": "Rulers",
+    "version": "1.0",
+    "description": "Adds rulers panel to devtools",
     "devtools_page": "devtools/devtools.html",
     "background": {
         "page": "background/background.html"
@@ -15,9 +15,11 @@
      "content_scripts": [
           {
             "matches": ["<all_urls>"],
-            "css": ["inserted-styles.css"],
-            "js": ["inserted-script.js"]
+            "css": ["injections/ui.css"],
+            "js": ["injections/ui.js", "injections/handlebars.js"]
           }
      ],
-     "options_page": "devtools/panel.html"
+     "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+     "options_page": "devtools/panel.html",
+     "default_locale": "en"
 }

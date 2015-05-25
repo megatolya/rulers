@@ -1,2 +1,62 @@
-<<script src="rulers.js"></script>
-<<script src="communication.js"></script>
+<script name="ruler" type="text/html">
+    <i class="ruler">
+        <i class="ruler__bg"></i>
+        <i class="ruler__text"></i>
+    </i>
+</script>
+<script name="rulerSettings" type="text/html">
+    <form class="ruler">
+        <table>
+            <tr>
+                <td class="ruler__td">
+                    <label for="width-input-{{id}}">{{i18n 'width'}}</label>
+                </td>
+                <td class="ruler__td">
+                    <input id="width-input-{{id}}" type="number" min="1" value="{{width}}">
+                </td>
+            <tr>
+                <td class="ruler__td">
+                    <label for="height-input-{{id}}">{{i18n 'height'}}</label>
+                </td>
+                <td class="ruler__td">
+                    <input id="height-input-{{id}}" type="number" min="1" value="{{height}}">
+                </td>
+            </tr>
+            <tr>
+                <td class="ruler__td">
+                    <label for="x-input-{{id}}">X</label>
+                </td>
+                <td class="ruler__td">
+                    <input id="x-input-{{id}}" type="number" min="1" value="{{left}}">
+                </td>
+            </tr>
+            <tr>
+                <td class="ruler__td">
+                    <label for="y-input-{{id}}">Y</label>
+                </td>
+                <td class="ruler__td">
+                    <input id="y-input-{{id}}" type="number" min="1" value="{{top}}">
+                </td>
+            </tr>
+            <tr>
+                <td class="ruler__td">
+                    <label for="color-input-{{id}}">Color</label>
+                </td>
+                <td class="ruler__td">
+                    <input type="color" value="{{color}}">
+                </td>
+            </tr>
+            <tr>
+                <td class="ruler__td">
+                    <label for="position-input-{{id}}">Fixed</label>
+                </td>
+                <td class="ruler__td">
+                    <input type="checkbox" id="position-input-{{id}}">
+                </td>
+            </tr>
+        </table>
+    </form>
+</script>
+<script src="templates.js"></script>
+<script src="rulers.js"></script>
+<script src="communication.js"></script>

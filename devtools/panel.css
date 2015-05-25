@@ -8,56 +8,56 @@ html {
     margin: 0;
 }
 
+*:focus {
+    outline:0;
+}
+
 #add-ruler {
     display: block;
     padding: 2px 5px;
     margin: 3px 20px;
     background-color: white;
-    border: 1px solid grey;
+    border: 1px solid rgb(208, 208, 208);
     border-radius: 2px;
-    font-size: 11px;
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
 }
 
 #add-ruler:active {
     background: rgb(229, 229, 229);
 }
 
-.layout {
-    width: 100%;
+.menu {
+    position: fixed;
+    width: 160px;
     height: 100%;
     border-spacing: 0;
     border-collapse: collapse;
 }
 
-.layout__head {
+.menu__head {
     height: 26px;
 }
 
-.layout__left-col {
+.menu__left-col {
     width: 170px;
 }
 
-.layout__td {
+.menu__td {
     background-color: #ededed;
     border: 1px solid #cacaca;
     vertical-align: top;
 }
 
-.layout td.bottom {
+.menu td.bottom {
     border-bottom: none;
 }
 
-.layout td:first-child {
+.menu td:first-child {
+    border-left: none;
     border-right-color: #a3a3a3;
 }
 
-.layout td:last-child {
-    border-right: none;
-}
-
-.layout td.white {
-    background-color: white;
+.menu td.transparent {
+    background: none;
 }
 
 .view-selector {
@@ -98,4 +98,8 @@ html {
 
 .ruler__td {
     padding: 1px 3px;
+}
+
+#rulers-container {
+      padding: 27px 5px 5px 171px;
 }
