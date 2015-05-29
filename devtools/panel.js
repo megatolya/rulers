@@ -26,9 +26,15 @@ var colors;
 
             case 'colors':
                 colors = event.colors;
+                break;
 
-            case 'rulerChanged':
+            case 'rulerCreated':
                 new Ruler(event.ruler).append();
+                break;
+
+            case 'rulerRemoved':
+                console.log('removing', event);
+                Ruler.getById(event.ruler.id).remove();
                 break;
         }
     });
@@ -40,11 +46,12 @@ function sendMessage(event) {
     event.tabId = chrome.devtools.inspectedWindow.tabId;
     event.fromDevtools = true;
     chrome.extension.sendMessage(event);
+    console.log('sending message', event);
 }
 
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('#add-ruler').addEventListener('click', function() {
-        sendMessage({type: 'addRuler'});
+        sendMessage({type: 'rulerCreated'});
     }, false);
 });
 console.log('panel is working');

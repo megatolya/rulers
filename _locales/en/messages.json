@@ -4,5 +4,8 @@
     },
     "height": {
         "message": "Height"
+    },
+    "removeRuler": {
+        "message": "Remove ruler"
     }
 }

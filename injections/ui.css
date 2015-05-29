@@ -3,6 +3,7 @@
     position: absolute;
     z-index: 9999;
     text-align: center;
+    -webkit-user-select: none;
 }
 
 .ruler,
@@ -26,5 +27,7 @@
 
 .ruler__text {
     display: table-cell;
+    position: relative;
     vertical-align: middle;
+    z-index: 1;
 }

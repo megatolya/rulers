@@ -6,6 +6,7 @@
 </script>
 <script name="rulerSettings" type="text/html">
     <form class="ruler">
+        <i class="ruler__remove" title="{{i18n 'removeRuler'}}"></i>
         <table>
             <tr>
                 <td class="ruler__td">
@@ -24,18 +25,18 @@
             </tr>
             <tr>
                 <td class="ruler__td">
-                    <label for="x-input-{{id}}">X</label>
+                    <label for="left-input-{{id}}">X</label>
                 </td>
                 <td class="ruler__td">
-                    <input id="x-input-{{id}}" type="number" min="1" value="{{left}}">
+                    <input id="left-input-{{id}}" type="number" min="1" value="{{left}}">
                 </td>
             </tr>
             <tr>
                 <td class="ruler__td">
-                    <label for="y-input-{{id}}">Y</label>
+                    <label for="top-input-{{id}}">Y</label>
                 </td>
                 <td class="ruler__td">
-                    <input id="y-input-{{id}}" type="number" min="1" value="{{top}}">
+                    <input id="top-input-{{id}}" type="number" min="1" value="{{top}}">
                 </td>
             </tr>
             <tr>
@@ -43,15 +44,15 @@
                     <label for="color-input-{{id}}">Color</label>
                 </td>
                 <td class="ruler__td">
-                    <input type="color" value="{{color}}">
+                    <input type="color" value="{{color}}" id="color-input-{{id}}">
                 </td>
             </tr>
             <tr>
                 <td class="ruler__td">
-                    <label for="position-input-{{id}}">Fixed</label>
+                    <label for="opacity-input-{{id}}">Opacity</label>
                 </td>
                 <td class="ruler__td">
-                    <input type="checkbox" id="position-input-{{id}}">
+                    <input type="range" min="0" max="100" step="1" value="{{opacity}}" id="opacity-input-{{id}}">
                 </td>
             </tr>
         </table>

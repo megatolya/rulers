@@ -2,27 +2,26 @@
 <html>
     <head>
         <link rel="stylesheet" href="panel.css">
-        <script src="handlebars.js"></script>
+        <script src="../common/handlebars.js"></script>
         <script src="helpers.js"></script>
         <script src="rulers.js"></script>
         <script src="panel.js"></script>
     </head>
     <body>
-        <table class="menu">
-            <tr class="menu__head">
-                <td class="menu__td menu__left-col dark-right-border">
-                    <button id="add-ruler" title="Add ruler">+ Add ruler</button>
-                </td>
-            </tr>
-            <tr>
-                <td class="menu__td menu__left-col bottom">
-                    <div class="view-selector">
-                        <button class="selected">Rulers</button>
-                        <button>Settings</button>
-                    </div>
-                </td>
-            </tr>
-        </table>
-        <div id="rulers-container"></div>
+        <div class="sidebar">
+            <div class="sidebar__status-bar">
+                <button id="add-ruler" title="Add ruler">+ Add ruler</button>
+            </div>
+            <div class="sidebar__menu">
+                <button class="selected">Rulers</button>
+                <button>Settings</button>
+            </div>
+        </div>
+        <div class="editor">
+            <div class="editor__status-bar">
+            </div>
+            <div id="rulers-container" class="editor__rulers">
+            </div>
+        </div>
     </body>
 </html>

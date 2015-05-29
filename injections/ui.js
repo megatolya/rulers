@@ -1,15 +1,24 @@
 var runtimeNamespace = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
 
+var rulers = {};
+
 function Ruler(data) {
-    this._width = data.width;
-    this._height = data.height;
-    this._top = data.top;
-    this._left = data.left;
-    this._color = data.color;
+    [
+        'id',
+        'width',
+        'height',
+        'top',
+        'left',
+        'color',
+        'opacity'
+    ].forEach(function (prop) {
+        this['_' + prop] = data[prop];
+    }, this);
+
+    rulers[this._id] = this;
 
     var container = document.createElement('div');
     container.innerHTML = templates.ruler();
-    console.log(container, container.firstChild);
     var domElem = this.domElem = container.firstChild;
     this._bgElem = domElem.querySelector('.ruler__bg');
     this._textElem = domElem.querySelector('.ruler__text');
@@ -20,59 +29,80 @@ function Ruler(data) {
 Ruler.prototype = {
     constructor: Ruler,
 
-    get width() {
-        return this._width;
-    },
-
-    get height() {
-        return this._height;
-    },
-
-    get top() {
-        return this._top;
-    },
-
-    get left() {
-        return this._left;
+    append: function () {
+        document.body.appendChild(this.domElem);
     },
 
     get color() {
         return this._color.toLowerCase();
     },
 
-    append: function () {
-        document.body.appendChild(this.domElem);
-    },
     update: function () {
         var domElem = this.domElem;
 
         ['top', 'left', 'width', 'height'].forEach(function (prop) {
-            domElem.style[prop] = this[prop] + 'px';
+            domElem.style[prop] = this['_' + prop] + 'px';
         }, this);
 
-        this._textElem.innerText = this.width + 'x' + this.height;
+        this._textElem.innerText = this._width + 'x' + this._height;
         this._bgElem.style.backgroundColor = this.color;
+        this._bgElem.style.opacity = this._opacity / 100;
+    },
+
+    change: function (data) {
+        [
+            'id',
+            'width',
+            'height',
+            'top',
+            'left',
+            'color',
+            'opacity'
+        ].forEach(function (prop) {
+            this['_' + prop] = data[prop];
+        }, this);
+
+        this.update();
+    },
+
+    remove: function () {
+        this.domElem.parentNode.removeChild(this.domElem);
+        delete rulers[this._id];
     }
+};
+
+Ruler.getById = function (id) {
+    function throwErr() {
+        throw new Error('Ruler not found, id = ' + id);
+    }
+
+    return rulers[id] || throwErr();
 };
 
 var templates;
 chrome[runtimeNamespace].onMessage.addListener(function(event, sender, sendResponse) {
-    console.log('11111', event);
     if (event.fromDevtools) {
         return;
     }
 
     switch (event.type) {
-        case 'rulerChanged':
+        case 'rulerCreated':
             new Ruler(event.ruler).append();
             break;
+
+        case 'rulerChanged':
+            Ruler.getById(event.ruler.id).change(event.ruler);
+            break;
+
+        case 'rulerRemoved':
+            Ruler.getById(event.ruler.id).remove();
+            break;
+
         case 'templates':
             templates = event.templates;
             Object.keys(templates).forEach(function (templateName) {
                 templates[templateName] = Handlebars.compile(templates[templateName]);
             });
-            console.log(templates);
-            console.log(templates.ruler);
             break;
     }
 });
@@ -80,4 +110,3 @@ chrome[runtimeNamespace].onMessage.addListener(function(event, sender, sendRespo
 chrome[runtimeNamespace].sendMessage({
     type: 'requestInit'
 });
-console.log('injected');

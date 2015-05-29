@@ -2,8 +2,8 @@ var INITIAL_WIDTH = 100;
 var INITIAL_HEIGHT = 100;
 var INITIAL_OPACITY = 30;
 var INITIAL_COORDS = {
-    left: 50,
-    top: 50
+    left: 10,
+    top: 10
 };
 
 var i = 0;

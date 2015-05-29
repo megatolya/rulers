@@ -1,6 +1,8 @@
 body,
 html {
     height: 100% !important;
+    font-size: 0;
+    -webkit-user-select: none;
 }
 
 * {
@@ -15,7 +17,6 @@ html {
 #add-ruler {
     display: block;
     padding: 2px 5px;
-    margin: 3px 20px;
     background-color: white;
     border: 1px solid rgb(208, 208, 208);
     border-radius: 2px;
@@ -25,67 +26,78 @@ html {
     background: rgb(229, 229, 229);
 }
 
-.menu {
-    position: fixed;
-    width: 160px;
-    height: 100%;
-    border-spacing: 0;
-    border-collapse: collapse;
-}
-
-.menu__head {
+.sidebar__status-bar,
+.editor__status-bar {
+    padding: 3px 10px;
     height: 26px;
-}
-
-.menu__left-col {
-    width: 170px;
-}
-
-.menu__td {
     background-color: #ededed;
-    border: 1px solid #cacaca;
+    box-sizing: border-box;
+    border-bottom: 1px solid #cacaca;
+}
+
+.sidebar {
+    background-color: #ededed;
+    border-right: 1px solid #a3a3a3;
     vertical-align: top;
+    display: inline-block;
+    height: 100%;
+    width: 140px;
 }
 
-.menu td.bottom {
-    border-bottom: none;
-}
-
-.menu td:first-child {
-    border-left: none;
-    border-right-color: #a3a3a3;
-}
-
-.menu td.transparent {
-    background: none;
-}
-
-.view-selector {
+.sidebar__menu {
     margin: 5px 0;
 }
 
-.view-selector button {
+.sidebar__menu button {
     text-align: left;
     padding-left: 20px;
     display: block;
     width: 100%;
-    line-height: 30px;
+    line-height: 33px;
     border: none;
     background: transparent;
     color: rgb(57, 66, 74);
     font-size: 12px;
 }
 
-.view-selector button.selected {
+.sidebar__menu button.selected {
     color: white;
     background: #3476dc;
 }
 
+.editor {
+    display: inline-block;
+    width: calc(100% - 141px);
+    height: 100%;
+}
+
 .ruler {
-    box-shadow: 0 0 1px 0 rgba(0,0,0,0.2);
+    position: relative;
+    font-family: Menlo, monospace;
+    border: 1px solid #a3a3a3;
+    font-size: 11px;
+    background-color: rgba(0, 0, 0, .05);
+    border-radius: 3px;
     display: inline-block;
     margin: 10px;
     padding: 10px;
+}
+
+.ruler__remove {
+    background: url(images/remove.svg);
+    width: 13px;
+    height: 13px;
+    display: inline-block;
+    background-size: 13px;
+    position: absolute;
+    right: 7px;
+    top: 7px;
+    opacity: 0.5;
+    cursor: pointer
+}
+
+.ruler__remove:hover {
+    opacity: 0.9;
 }
 
 .ruler__td:first-child {
@@ -100,6 +112,21 @@ html {
     padding: 1px 3px;
 }
 
+.ruler__td label {
+    display: block;
+    width: 100%;
+}
+
+.ruler__td input[type=text],
+.ruler__td input[type=number] {
+    width: 50px;
+}
+
+.ruler__td input[type=range] {
+    width: 80px;
+}
+
 #rulers-container {
-      padding: 27px 5px 5px 171px;
+    overflow-y: auto;
+    height: calc(100% - 26px);
 }

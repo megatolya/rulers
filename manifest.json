@@ -16,7 +16,7 @@
           {
             "matches": ["<all_urls>"],
             "css": ["injections/ui.css"],
-            "js": ["injections/ui.js", "injections/handlebars.js"]
+            "js": ["injections/ui.js", "common/handlebars.js"]
           }
      ],
      "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
