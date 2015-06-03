@@ -5,6 +5,10 @@ html {
     -webkit-user-select: none;
 }
 
+.layout {
+    font-family: 'Lucida Grande', sans-serif;
+}
+
 * {
     padding: 0;
     margin: 0;
@@ -12,6 +16,13 @@ html {
 
 *:focus {
     outline:0;
+}
+
+#show-rulers-label {
+    display: inline-block;
+    font-size: 10px;
+    margin-left: 5px;
+    margin-top: 4px;
 }
 
 #add-ruler {

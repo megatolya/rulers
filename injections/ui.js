@@ -95,7 +95,7 @@ chrome[runtimeNamespace].onMessage.addListener(function(event, sender, sendRespo
             break;
 
         case 'rulerRemoved':
-            Ruler.getById(event.ruler.id).remove();
+            Ruler.getById(event.ruler).remove();
             break;
 
         case 'templates':

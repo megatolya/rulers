@@ -4,6 +4,9 @@
 // Can use:
 // chrome.tabs.*
 // chrome.extension.*
+var templates = {};
+
+
 function sendMessageToTab(tabId, event) {
     console.log('sending event to', tabId, event.type, event);
     chrome.tabs.sendMessage(tabId, event);
@@ -13,25 +16,36 @@ var runtimeNamespace = chrome.runtime && chrome.runtime.sendMessage ? "runtime" 
 
 chrome.extension.onConnect.addListener(function (port) {
     var devToolsListener = function (event, sender, sendResponse) {
-    console.log('receiving message', event);
+        console.log('receiving message', event);
         switch (event.type) {
             case 'rulerCreated':
                 if (!event.tabId) {
                     return;
                 }
 
-                var ruler = new Ruler();
+                var ruler = new Ruler(event.tabId);
+                ruler.setPort(port);
                 sendMessageToTab(event.tabId, {type: 'rulerCreated', ruler: ruler});
                 port.postMessage({type: 'rulerCreated', ruler: ruler});
                 break;
 
             case 'rulerChanged':
-                sendMessageToTab(event.tabId, {type: 'rulerChanged', ruler: event.ruler});
+                Ruler.getById(event.ruler.id).change(event.ruler);
                 break;
+
             case 'rulerRemoved':
-                sendMessageToTab(event.tabId, {type: 'rulerRemoved', ruler: event.ruler});
-                port.postMessage({type: 'rulerRemoved', ruler: event.ruler});
+                Ruler.getById(event.ruler.id).remove();
                 break;
+
+            case 'requestInit':
+                if (!event.tabId) {
+                    console.warn('No tab is inspected ;(');
+                    return;
+                }
+                Ruler.getByTab(event.tabId).forEach(function (ruler) {
+                    ruler.setPort(port);
+                    port.postMessage({type: 'rulerCreated', ruler: ruler});
+                });
         }
     }
 
@@ -55,6 +69,9 @@ chrome[runtimeNamespace].onMessage.addListener(function(event, sender, sendRespo
             sendMessageToTab(sender.tab.id, {
                 type: 'templates',
                 templates: templates
+            });
+            var rulers = Ruler.getByTab(sender.tab.id).forEach(function (ruler) {
+                sendMessageToTab(sender.tab.id, {type: 'rulerCreated', ruler: ruler});
             });
             break;
     }

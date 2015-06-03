@@ -37,14 +37,20 @@ function Ruler(data) {
         'left',
     ].forEach(function (prop) {
         var unpreventableCodes = [9];
+        var input = this._getInput(prop);
 
-        this._getInput(prop)
-            .addEventListener('keydown', function (e) {
+        input.addEventListener('change', function (e) {
+            this._actualizeInput(prop);
+            this._sendToBackground();
+        }.bind(this));
+
+        input.addEventListener('keydown', function (e) {
                 if (unpreventableCodes.indexOf(e.keyCode) !== -1) {
                     return;
                 }
 
                 e.preventDefault();
+
                 var direction;
 
                 if (e.keyCode === 40 || e.keyCode === 74) {
@@ -63,7 +69,7 @@ function Ruler(data) {
                     }
 
                     this._getInput(prop).value = parseInt(this._getInput(prop).value, 10) + diff;
-                    this['_' + prop] = this._getInput(prop).value;
+                    this._actualizeInput(prop);
                     this._sendToBackground();
                 }
             }.bind(this), false);
@@ -87,6 +93,10 @@ Ruler.prototype = {
             throw new Error('Input not found ' + type);
         }
         return elem;
+    },
+
+    _actualizeInput: function (name) {
+        this['_' + name] = this._getInput(name).value;
     },
 
     serialize: function () {

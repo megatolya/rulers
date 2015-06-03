@@ -7,18 +7,20 @@
         <script src="rulers.js"></script>
         <script src="panel.js"></script>
     </head>
-    <body>
+    <body class="layout">
         <div class="sidebar">
             <div class="sidebar__status-bar">
-                <button id="add-ruler" title="Add ruler">+ Add ruler</button>
+                <button id="add-ruler" title="Add ruler" i18n="addRuler">+ Add ruler</button>
             </div>
             <div class="sidebar__menu">
-                <button class="selected">Rulers</button>
-                <button>Settings</button>
+                <button class="selected" i18n="Rulers">Rulers</button>
+                <!--<button i18n="settings">Settings</button>-->
             </div>
         </div>
         <div class="editor">
             <div class="editor__status-bar">
+                <input type="checkbox" id="show-rulers">
+                <label id="show-rulers-label" for="show-rulers" i18n="showRulers">Show rulers lol</label>
             </div>
             <div id="rulers-container" class="editor__rulers">
             </div>

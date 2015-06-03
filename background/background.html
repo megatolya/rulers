@@ -1,63 +1,12 @@
-<script name="ruler" type="text/html">
-    <i class="ruler">
-        <i class="ruler__bg"></i>
-        <i class="ruler__text"></i>
-    </i>
-</script>
-<script name="rulerSettings" type="text/html">
-    <form class="ruler">
-        <i class="ruler__remove" title="{{i18n 'removeRuler'}}"></i>
-        <table>
-            <tr>
-                <td class="ruler__td">
-                    <label for="width-input-{{id}}">{{i18n 'width'}}</label>
-                </td>
-                <td class="ruler__td">
-                    <input id="width-input-{{id}}" type="number" min="1" value="{{width}}">
-                </td>
-            <tr>
-                <td class="ruler__td">
-                    <label for="height-input-{{id}}">{{i18n 'height'}}</label>
-                </td>
-                <td class="ruler__td">
-                    <input id="height-input-{{id}}" type="number" min="1" value="{{height}}">
-                </td>
-            </tr>
-            <tr>
-                <td class="ruler__td">
-                    <label for="left-input-{{id}}">X</label>
-                </td>
-                <td class="ruler__td">
-                    <input id="left-input-{{id}}" type="number" min="1" value="{{left}}">
-                </td>
-            </tr>
-            <tr>
-                <td class="ruler__td">
-                    <label for="top-input-{{id}}">Y</label>
-                </td>
-                <td class="ruler__td">
-                    <input id="top-input-{{id}}" type="number" min="1" value="{{top}}">
-                </td>
-            </tr>
-            <tr>
-                <td class="ruler__td">
-                    <label for="color-input-{{id}}">Color</label>
-                </td>
-                <td class="ruler__td">
-                    <input type="color" value="{{color}}" id="color-input-{{id}}">
-                </td>
-            </tr>
-            <tr>
-                <td class="ruler__td">
-                    <label for="opacity-input-{{id}}">Opacity</label>
-                </td>
-                <td class="ruler__td">
-                    <input type="range" min="0" max="100" step="1" value="{{opacity}}" id="opacity-input-{{id}}">
-                </td>
-            </tr>
-        </table>
-    </form>
-</script>
-<script src="templates.js"></script>
-<script src="rulers.js"></script>
-<script src="communication.js"></script>
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="../common/lodash.min.js"></script>
+        <script src="rulers.js"></script>
+        <script src="communication.js"></script>
+        <link rel="import" href="include.html">
+        <script src="templates.js"></script>
+    </head>
+    <body>
+    </body>
+</html>

@@ -34,7 +34,7 @@ var colors;
 
             case 'rulerRemoved':
                 console.log('removing', event);
-                Ruler.getById(event.ruler.id).remove();
+                Ruler.getById(event.ruler).remove();
                 break;
         }
     });
@@ -50,8 +50,24 @@ function sendMessage(event) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    sendMessage({type: 'requestInit'});
+
     document.querySelector('#add-ruler').addEventListener('click', function() {
         sendMessage({type: 'rulerCreated'});
     }, false);
+
+    [].forEach.call(document.querySelectorAll('[i18n]'), function (elem) {
+        var msg = null;
+
+        try {
+            msg = chrome.i18n.getMessage(elem.getAttribute('i18n'));
+        } catch (err) {}
+
+        if (!msg) {
+            return;
+        }
+
+        elem.innerText = msg;
+    });
 });
 console.log('panel is working');
