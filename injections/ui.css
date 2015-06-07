@@ -1,9 +1,18 @@
 .ruler {
-    display: table;
-    position: absolute;
-    z-index: 9999;
+    display: block;
+    overflow: hidden; position: absolute;
+    z-index: 8888888;
     text-align: center;
     -webkit-user-select: none;
+}
+
+.ruler_highlighted {
+    z-index: 8888889;
+    opacity: 0.9 !important;
+}
+
+.ruler_highlighted .ruler__bg {
+    opacity: 0.9 !important;
 }
 
 .ruler,
@@ -26,7 +35,8 @@
 }
 
 .ruler__text {
-    display: table-cell;
+    display: inline-block;
+    margin: 10px auto;
     position: relative;
     vertical-align: middle;
     z-index: 1;

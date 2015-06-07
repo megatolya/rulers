@@ -15,7 +15,7 @@ html {
 }
 
 *:focus {
-    outline:0;
+    outline: 0;
 }
 
 #show-rulers-label {

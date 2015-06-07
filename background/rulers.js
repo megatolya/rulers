@@ -6,9 +6,10 @@ var INITIAL_COORDS = {
     top: 10
 };
 
-var i = 0;
+var id = 0;
+var position = 0;
 
-var colors = _.shuffle(['aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque', 'black', 'blanchedalmond', 'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse', 'chocolate', 'coral', 'cornflowerblue', 'cornsilk', 'crimson', 'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgray', 'darkgreen', 'darkkhaki', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darksalmon', 'darkseagreen', 'darkslateblue', 'darkslategray', 'darkturquoise', 'darkviolet', 'deeppink', 'deepskyblue', 'dimgray', 'dodgerblue', 'firebrick', 'floralwhite', 'forestgreen', 'fuchsia', 'gainsboro', 'ghostwhite', 'gold', 'goldenrod', 'gray', 'green', 'greenyellow', 'honeydew', 'hotpink', 'indianred', 'indigo', 'ivory', 'khaki', 'lavender', 'lavenderblush', 'lawngreen', 'lemonchiffon', 'lightblue', 'lightcoral', 'lightcyan', 'lightgoldenrodyellow', 'lightgreen', 'lightgrey', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightsteelblue', 'lightyellow', 'lime', 'limegreen', 'linen', 'magenta', 'maroon', 'mediumaquamarine', 'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumspringgreen', 'mediumturquoise', 'mediumvioletred', 'midnightblue', 'mintcream', 'mistyrose', 'moccasin', 'navajowhite', 'navy', 'oldlace', 'olive', 'olivedrab', 'orange', 'orangered', 'orchid', 'palegoldenrod', 'palegreen', 'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'pink', 'plum', 'powderblue', 'purple', 'red', 'rosybrown', 'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen', 'seashell', 'sienna', 'silver', 'skyblue', 'slateblue', 'slategray', 'snow', 'springgreen', 'steelblue', 'tan', 'teal', 'thistle', 'tomato', 'turquoise', 'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen']);
+var colors = _.shuffle('aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue darkslategray darkturquoise darkviolet deeppink deepskyblue dimgray dodgerblue firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow honeydew hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue slateblue slategray snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen'.split(' '));
 
 function throwErr(text) {
     throw new Error(text);
@@ -33,16 +34,21 @@ var tabRulers = {};
 var idToRule = {};
 
 function Ruler(tabId, port) {
+    position++;
+    if (position > 15) {
+        position = 0;
+    }
+
     this.tabId = tabId;
     this._port = port;
 
-    this.id = 'id' + i++;
+    this.id = 'id' + id++;
     this.width = INITIAL_WIDTH;
     this.height = INITIAL_HEIGHT;
-    this.top = INITIAL_COORDS.top * i;
-    this.left = INITIAL_COORDS.left * i;
+    this.top = INITIAL_COORDS.top * position;
+    this.left = INITIAL_COORDS.left * position;
     this.opacity = INITIAL_OPACITY;
-    this.color = colors[i % colors.length];
+    this.color = colors[id % colors.length];
 
     idToRule[this.id] = this;
     var rulersForTab = tabRulers[this.tabId] = tabRulers[this.tabId] || [];
@@ -53,7 +59,11 @@ Ruler.prototype = {
     constructor: Ruler,
 
     remove: function () {
-        sendMessageToTab(this.tabId, {type: 'rulerRemoved', ruler: this.id});
+        var settings = getSettings(this.tabId);
+        if (settings.showRulers) {
+            sendMessageToTab(this.tabId, {type: 'rulerRemoved', ruler: this.id});
+        }
+
         this.port.postMessage({type: 'rulerRemoved', ruler: this.id});
 
         delete idToRule[this.id];
@@ -72,7 +82,12 @@ Ruler.prototype = {
             this[prop] = ruler[prop];
         }, this);
 
-        sendMessageToTab(this.tabId, {type: 'rulerChanged', ruler: ruler});
+
+        var settings = getSettings(this.tabId);
+        if (settings.showRulers) {
+            sendMessageToTab(this.tabId, {type: 'rulerChanged', ruler: ruler});
+        }
+
         this.port.postMessage({type: 'rulerRemoved', ruler: ruler});
     },
 

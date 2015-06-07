@@ -12,20 +12,33 @@ function sendMessageToTab(tabId, event) {
     chrome.tabs.sendMessage(tabId, event);
 }
 
-var runtimeNamespace = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
 
+function handleHighlight(tabId, on, ruler) {
+    sendMessageToTab(tabId, {
+        type: 'highlight',
+        on: on,
+        ruler: ruler.id
+    });
+}
+
+var runtimeNamespace = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
 chrome.extension.onConnect.addListener(function (port) {
     var devToolsListener = function (event, sender, sendResponse) {
+        var tabId = event.tabId;
+        var settings = getSettings(tabId);
         console.log('receiving message', event);
+
         switch (event.type) {
             case 'rulerCreated':
-                if (!event.tabId) {
+                if (!tabId) {
                     return;
                 }
 
-                var ruler = new Ruler(event.tabId);
+                var ruler = new Ruler(tabId);
                 ruler.setPort(port);
-                sendMessageToTab(event.tabId, {type: 'rulerCreated', ruler: ruler});
+                if (settings.showRulers) {
+                    sendMessageToTab(tabId, {type: 'rulerCreated', ruler: ruler});
+                }
                 port.postMessage({type: 'rulerCreated', ruler: ruler});
                 break;
 
@@ -37,12 +50,21 @@ chrome.extension.onConnect.addListener(function (port) {
                 Ruler.getById(event.ruler.id).remove();
                 break;
 
+            case 'settingsChanged':
+                handleSettings(tabId, event.settings);
+                break;
+
+            case 'highlight':
+                handleHighlight(tabId, event.on, event.ruler);
+                break;
+
             case 'requestInit':
-                if (!event.tabId) {
+                if (!tabId) {
                     console.warn('No tab is inspected ;(');
                     return;
                 }
-                Ruler.getByTab(event.tabId).forEach(function (ruler) {
+                port.postMessage({type: 'settingsChanged', settings: getSettings(tabId)});
+                Ruler.getByTab(tabId).forEach(function (ruler) {
                     ruler.setPort(port);
                     port.postMessage({type: 'rulerCreated', ruler: ruler});
                 });

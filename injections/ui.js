@@ -24,6 +24,7 @@ function Ruler(data) {
     this._textElem = domElem.querySelector('.ruler__text');
 
     this.update();
+    this.append();
 }
 
 Ruler.prototype = {
@@ -68,15 +69,24 @@ Ruler.prototype = {
     remove: function () {
         this.domElem.parentNode.removeChild(this.domElem);
         delete rulers[this._id];
+    },
+
+    highlight: function (on) {
+        console.log(this.domElem);
+        if (on) {
+            this.domElem.classList.add('ruler_highlighted');
+        } else {
+            this.domElem.classList.remove('ruler_highlighted');
+        }
     }
 };
 
-Ruler.getById = function (id) {
+Ruler.getById = function (id, soft) {
     function throwErr() {
         throw new Error('Ruler not found, id = ' + id);
     }
 
-    return rulers[id] || throwErr();
+    return rulers[id] || (soft ? null : throwErr());
 };
 
 var templates;
@@ -87,15 +97,21 @@ chrome[runtimeNamespace].onMessage.addListener(function(event, sender, sendRespo
 
     switch (event.type) {
         case 'rulerCreated':
-            new Ruler(event.ruler).append();
+            new Ruler(event.ruler);
             break;
 
         case 'rulerChanged':
-            Ruler.getById(event.ruler.id).change(event.ruler);
+            (Ruler.getById(event.ruler.id, true) || new Ruler(event.ruler)).change(event.ruler);
             break;
 
         case 'rulerRemoved':
+            console.log('fake remove', event.ruler);
+            console.log(rulers);
             Ruler.getById(event.ruler).remove();
+            break;
+
+        case 'highlight':
+            Ruler.getById(event.ruler).highlight(event.on);
             break;
 
         case 'templates':

@@ -8,6 +8,21 @@ var runtimeNamespace = chrome.runtime && chrome.runtime.sendMessage ? "runtime" 
 var templates;
 var colors;
 
+function handleSettings(settings) {
+    document.querySelector('#show-rulers').checked = settings.showRulers;
+}
+
+function sendSettings() {
+    var settings = {
+        showRulers: document.querySelector('#show-rulers').checked
+    };
+
+    sendMessage({
+        type: 'settingsChanged',
+        settings: settings
+    });
+}
+
 (function createChannel() {
     //Create a port with background page for continous message communication
     var port = chrome.extension.connect({
@@ -30,6 +45,10 @@ var colors;
 
             case 'rulerCreated':
                 new Ruler(event.ruler).append();
+                break;
+
+            case 'settingsChanged':
+                handleSettings(event.settings);
                 break;
 
             case 'rulerRemoved':
@@ -69,5 +88,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         elem.innerText = msg;
     });
+
+    document.querySelector('#show-rulers').addEventListener('change', function () {
+        sendSettings();
+    }, false);
 });
 console.log('panel is working');

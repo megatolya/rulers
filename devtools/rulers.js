@@ -82,6 +82,18 @@ function Ruler(data) {
         });
     }.bind(this), false);
 
+
+    var _this = this;
+    function onOver(eventType, originalEvent) {
+        sendMessage({
+            type: 'highlight',
+            on: eventType === 'over',
+            ruler: _this.serialize()
+        });
+    }
+
+    this.domElem.addEventListener('mouseleave', onOver.bind(this, 'out'));
+    this.domElem.addEventListener('mouseenter', onOver.bind(this, 'over'));
 }
 
 Ruler.prototype = {
