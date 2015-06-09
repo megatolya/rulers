@@ -1,7 +1,7 @@
 {
     "name": "Devtools Rulers",
     "short_name": "Rulers",
-    "version": "1.1",
+    "version": "1.2",
     "description": "Adds rulers panel to devtools!",
     "devtools_page": "devtools/devtools.html",
     "background": {

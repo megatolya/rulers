@@ -9,7 +9,7 @@
         "message": "Remove ruler"
     },
     "addRuler": {
-        "message": "+ Add ruler"
+        "message": "Add ruler"
     },
     "Rulers": {
         "message": "Rulers"
@@ -19,5 +19,11 @@
     },
     "settings": {
         "message": "Settings"
+    },
+    "removeAllRulers": {
+        "message": "Remove all rulers"
+    },
+    "allRulersWillBeRemoved": {
+        "message": "All rulers will be removed from this page"
     }
 }

@@ -4,9 +4,10 @@
 // chrome.devtools.*
 // chrome.extension.*
 
-var runtimeNamespace = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
+var runtimeNamespace = chrome.runtime && chrome.runtime.sendMessage ? 'runtime' : 'extension';
 var templates;
 var colors;
+var port;
 
 function handleSettings(settings) {
     document.querySelector('#show-rulers').checked = settings.showRulers;
@@ -24,12 +25,10 @@ function sendSettings() {
 }
 
 (function createChannel() {
-    //Create a port with background page for continous message communication
-    var port = chrome.extension.connect({
-        name: "Sample Communication" //Given a Name
+    port = chrome.extension.connect({
+        name: 'Rulers' //Given a Name
     });
 
-    // Listen to messages from the background page
     port.onMessage.addListener(function (event) {
         switch (event.type) {
             case 'templates':
@@ -52,7 +51,6 @@ function sendSettings() {
                 break;
 
             case 'rulerRemoved':
-                console.log('removing', event);
                 Ruler.getById(event.ruler).remove();
                 break;
         }
@@ -65,7 +63,6 @@ function sendMessage(event) {
     event.tabId = chrome.devtools.inspectedWindow.tabId;
     event.fromDevtools = true;
     chrome.extension.sendMessage(event);
-    console.log('sending message', event);
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -73,6 +70,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelector('#add-ruler').addEventListener('click', function() {
         sendMessage({type: 'rulerCreated'});
+    }, false);
+
+    document.querySelector('#remove-all-rulers').addEventListener('click', function() {
+        sendMessage({type: 'removeAllRulers'});
     }, false);
 
     [].forEach.call(document.querySelectorAll('[i18n]'), function (elem) {
@@ -93,4 +94,3 @@ document.addEventListener('DOMContentLoaded', function () {
         sendSettings();
     }, false);
 });
-console.log('panel is working');

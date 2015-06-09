@@ -6,9 +6,8 @@
 // chrome.extension.*
 var templates = {};
 
-
 function sendMessageToTab(tabId, event) {
-    console.log('sending event to', tabId, event.type, event);
+    console.log('sending message', tabId, event.type, event);
     chrome.tabs.sendMessage(tabId, event);
 }
 
@@ -21,7 +20,7 @@ function handleHighlight(tabId, on, ruler) {
     });
 }
 
-var runtimeNamespace = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
+var runtimeNamespace = chrome.runtime && chrome.runtime.sendMessage ? 'runtime' : 'extension';
 chrome.extension.onConnect.addListener(function (port) {
     var devToolsListener = function (event, sender, sendResponse) {
         var tabId = event.tabId;
@@ -50,6 +49,10 @@ chrome.extension.onConnect.addListener(function (port) {
                 Ruler.getById(event.ruler.id).remove();
                 break;
 
+            case 'removeAllRulers':
+                Ruler.removeAll(tabId);
+                break;
+
             case 'settingsChanged':
                 handleSettings(tabId, event.settings);
                 break;
@@ -59,11 +62,12 @@ chrome.extension.onConnect.addListener(function (port) {
                 break;
 
             case 'requestInit':
+                port.postMessage({type: 'settingsChanged', settings: getSettings(tabId)});
+
                 if (!tabId) {
                     console.warn('No tab is inspected ;(');
                     return;
                 }
-                port.postMessage({type: 'settingsChanged', settings: getSettings(tabId)});
                 Ruler.getByTab(tabId).forEach(function (ruler) {
                     ruler.setPort(port);
                     port.postMessage({type: 'rulerCreated', ruler: ruler});
@@ -86,15 +90,19 @@ chrome[runtimeNamespace].onMessage.addListener(function(event, sender, sendRespo
         return;
     }
 
+    var settings = getSettings(sender.tab.id);
+
     switch (event.type) {
         case 'requestInit':
             sendMessageToTab(sender.tab.id, {
                 type: 'templates',
                 templates: templates
             });
-            var rulers = Ruler.getByTab(sender.tab.id).forEach(function (ruler) {
-                sendMessageToTab(sender.tab.id, {type: 'rulerCreated', ruler: ruler});
-            });
+            if (settings.showRulers) {
+                Ruler.getByTab(sender.tab.id).forEach(function (ruler) {
+                    sendMessageToTab(sender.tab.id, {type: 'rulerCreated', ruler: ruler});
+                });
+            }
             break;
     }
 
