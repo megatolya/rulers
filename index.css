@@ -4,24 +4,47 @@
     font-family: sans-serif;
 }
 
+html, body {
+    height: 100%;
+}
+
 .header {
-    margin-top: 80px;
+    padding-top: 80px;
     text-align: center;
 }
 
 main {
-    text-align: center;
     max-width: 600px;
-    margin: 20px auto;
+    padding: 20px 0;
+    text-align: center;
+    margin: 0 auto;
 }
 
 main p {
     line-height: 30px;
 }
 
+.wrapper {
+    min-height: 100%;
+    height: auto !important; /* This line and the next line are not necessary unless you need IE6 support */
+    height: 100%;
+    margin: 0 auto -30px; /* the bottom margin is the negative value of the footer's height */
+}
+.footer, .push {
+    text-align: center;
+    height: 30px; /* .push must be the same height as .footer */
+}
+
+/*
+
+Sticky Footer by Ryan Fait
+http://ryanfait.com/
+
+*/
+
 .logo {
     width: 160px;
-    margin: 20px;
+    padding: 20px;
 }
 
 .btn {
