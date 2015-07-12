@@ -34,23 +34,14 @@ document.addEventListener('DOMContentLoaded', function () {
 var tabRulers = {};
 var idToRule = {};
 
-function Ruler(tabId, port) {
-    rulersPositionRatio++;
-    if (rulersPositionRatio > 15) {
-        rulersPositionRatio = 1;
-        leftDelta += INITIAL_COORDS.left * 5;
-    }
+var count = 0;
 
+function Ruler(tabId, data) {
     this.tabId = tabId;
-    this._port = port;
-
     this.id = 'id' + id++;
-    this.width = INITIAL_WIDTH;
-    this.height = INITIAL_HEIGHT;
-    this.top = INITIAL_COORDS.top * rulersPositionRatio;
-    this.left = INITIAL_COORDS.left * rulersPositionRatio + leftDelta;
-    this.opacity = INITIAL_OPACITY;
-    this.color = colors[id % colors.length];
+    Object.keys(data).forEach(function (prop) {
+        this[prop] = data[prop];
+    }, this);
 
     idToRule[this.id] = this;
     var rulersForTab = tabRulers[this.tabId] = tabRulers[this.tabId] || [];
@@ -105,6 +96,22 @@ Ruler.prototype = {
 
     setPort: function (port) {
         this.port = port;
+    },
+
+    copy: function () {
+        var data = {};
+        [
+            'width',
+            'height',
+            'top',
+            'left',
+            'opacity',
+            'color',
+            'position'
+        ].forEach(function (prop) {
+            data[prop] = this[prop];
+        }, this);
+        return new Ruler(this.tabId, data);
     }
 };
 
@@ -124,4 +131,22 @@ Ruler.removeAll = function (tabId) {
     this.getByTab(tabId).forEach(function (ruler) {
         ruler.remove();
     });
+};
+
+Ruler.create = function (tabId) {
+    rulersPositionRatio++;
+    if (rulersPositionRatio > 15) {
+        rulersPositionRatio = 1;
+        leftDelta += INITIAL_COORDS.left * 5;
+    }
+
+    var data = {
+        width: INITIAL_WIDTH,
+        height: INITIAL_HEIGHT,
+        top: INITIAL_COORDS.top * rulersPositionRatio,
+        left: INITIAL_COORDS.left * rulersPositionRatio + leftDelta,
+        opacity: INITIAL_OPACITY,
+        color: colors[(count++) % colors.length]
+    };
+    return new Ruler(tabId, data);
 };

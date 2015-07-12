@@ -50,7 +50,7 @@ chrome.extension.onConnect.addListener(function (port) {
                         return;
                     }
 
-                    var ruler = new Ruler(tabId);
+                    var ruler = Ruler.create(tabId);
                     ruler.position = settings.rulerDefaultPosition;
                     ruler.setPort(port);
                     if (settings.showRulers) {
@@ -61,6 +61,15 @@ chrome.extension.onConnect.addListener(function (port) {
 
                 case 'rulerChanged':
                     Ruler.getById(message.ruler.id).change(message.ruler);
+                    break;
+
+                case 'rulerCopied':
+                    var ruler = Ruler.getById(message.ruler).copy();
+                    ruler.setPort(port);
+                    if (settings.showRulers) {
+                        sendMessageToTab(tabId, {type: 'rulerCreated', ruler: ruler});
+                    }
+                    port.postMessage({type: 'rulerCreated', ruler: ruler});
                     break;
 
                 case 'rulerRemoved':

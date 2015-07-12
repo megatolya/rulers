@@ -71,6 +71,11 @@ function Ruler(data) {
     ].forEach(function (prop) {
         this._getInput(prop).selectedIndex = ['absolute', 'fixed'].indexOf(data.position);
     }, this);
+
+    this._getInput('copy').addEventListener('click', function (e) {
+        this.copy();
+        e.preventDefault();
+    }.bind(this), false);
 }
 
 Ruler.prototype = {
@@ -134,6 +139,10 @@ Ruler.prototype = {
                 this._getInput(prop).value = ruler[prop];
             }
         }, this);
+    },
+
+    copy: function () {
+        sendMessage({type: 'rulerCopied', ruler: this.id});
     }
 };
 
