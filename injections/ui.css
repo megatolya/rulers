@@ -7,7 +7,6 @@
 }
 
 .ruler_highlighted {
-    box-shadow: 0 0 10px 0 rgba(243, 255, 60, 0.4);
     opacity: 0.95 !important;
     z-index: 8888889;
 }

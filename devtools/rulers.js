@@ -76,6 +76,37 @@ function Ruler(data) {
         this.copy();
         e.preventDefault();
     }.bind(this), false);
+
+    [
+        'width',
+        'height',
+        'top',
+        'left',
+    ].forEach(function (inputName) {
+        var input = this._getInput(inputName);
+
+        input.addEventListener('keydown', function (e) {
+            if (!e.shiftKey) {
+                return;
+            }
+
+            var val = parseInt(input.value, 10);
+
+            if (Number.isNaN(val)) {
+                return;
+            }
+
+            if (e.keyCode === 40) {
+                val -= 10;
+            }
+
+            if (e.keyCode === 38) {
+                val += 10;
+            }
+
+            input.value = val.toString();
+        });
+    }, this);
 }
 
 Ruler.prototype = {
@@ -94,7 +125,7 @@ Ruler.prototype = {
             this.position = getSelectValue(this._getInput('position'));
             return;
         }
-        this[name] = this._getInput(name).value;
+        this[name] = parseInt(this._getInput(name).value, 10);
     },
 
     serialize: function () {
