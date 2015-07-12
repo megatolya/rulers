@@ -9,14 +9,42 @@ var templates;
 var colors;
 var port;
 
+function getSelectValue(select) {
+    return select.options[select.selectedIndex].value;
+}
+
+function setSelectValueFactory(select, options) {
+    return function (value) {
+        select.selectedIndex = options.indexOf(value);
+    }
+}
+
+var oldSettings;
+
 function handleSettings(settings) {
-    document.querySelector('#show-rulers').checked = settings.showRulers;
+    oldSettings = settings;
+    settings = _.assign(getSettings(), settings);
+    $('#set-show-rulers').checked = settings.showRulers;
+    setRulerPositionSelect(settings.rulerDefaultPosition);
+    $('#set-ruler-default-position').value = settings.rulerDefaultPosition;
+    //$('#set-create-rulers-in-viewport').checked = settings.createRulersInViewport;
+}
+
+var setRulerPositionSelect;
+
+var $ = document.querySelector.bind(document);
+var $$ = document.querySelectorAll.bind(document);
+
+function getSettings() {
+    return {
+        showRulers: $('#set-show-rulers').checked,
+        rulerDefaultPosition: getSelectValue($('#set-ruler-default-position')),
+        //createRulersInViewport: $('#set-create-rulers-in-viewport').checked
+    };
 }
 
 function sendSettings() {
-    var settings = {
-        showRulers: document.querySelector('#show-rulers').checked
-    };
+    var settings = getSettings();
 
     sendMessage({
         type: 'settingsChanged',
@@ -43,7 +71,7 @@ function sendSettings() {
                 break;
 
             case 'rulerCreated':
-                new Ruler(event.ruler).append();
+                new Ruler(event.ruler);
                 break;
 
             case 'settingsChanged':
@@ -52,6 +80,10 @@ function sendSettings() {
 
             case 'rulerRemoved':
                 Ruler.getById(event.ruler).remove();
+                break;
+
+            case 'rulerChanged':
+                Ruler.getById(event.ruler.id).change(event.ruler);
                 break;
         }
     });
@@ -65,32 +97,83 @@ function sendMessage(event) {
     chrome.extension.sendMessage(event);
 }
 
+var views = {};
+
+function setSettingsToInputs() {
+    if (oldSettings) {
+        setRulerPositionSelect(oldSettings.rulerDefaultPosition);
+    }
+}
+
+function setView(newViewName) {
+    Object.keys(views).forEach(function (viewName) {
+        if (viewName === newViewName) {
+            views[viewName].style.display = 'block';
+        } else {
+            views[viewName].style.display = 'none';
+        }
+    });
+
+    [].forEach.call($$('.set-view-button'), function (element) {
+        element.classList.remove('selected');
+    });
+    $('#set-view-' + newViewName).classList.add('selected');
+    setSettingsToInputs();
+};
+
 document.addEventListener('DOMContentLoaded', function () {
+    setRulerPositionSelect = setSelectValueFactory($('#set-ruler-default-position'), ['absolute', 'fixed']);
+    setSettingsToInputs();
     sendMessage({type: 'requestInit'});
 
-    document.querySelector('#add-ruler').addEventListener('click', function() {
+    [].forEach.call($$('[data-view]'), function (element) {
+        views[element.getAttribute('data-view')] = element;
+    });
+
+    $('#add-ruler').addEventListener('click', function() {
         sendMessage({type: 'rulerCreated'});
     }, false);
 
-    document.querySelector('#remove-all-rulers').addEventListener('click', function() {
-        sendMessage({type: 'removeAllRulers'});
-    }, false);
+    [
+        'rulers',
+        'settings'
+    ].forEach(function (view) {
+        var element = $('#set-view-' + view);
 
-    [].forEach.call(document.querySelectorAll('[i18n]'), function (elem) {
+        if (!element) {
+            return;
+        }
+
+        element.addEventListener('click', function () {
+            setView(view);
+        }, false);
+    });
+
+    setView('rulers');
+
+    [].forEach.call($$('[settings-changer]'), function (element) {
+        element.addEventListener('change', function () {
+            sendSettings();
+        });
+    });
+
+    [].forEach.call($$('[i18n]'), function (elem) {
         var msg = null;
+        var attr = elem.getAttribute('i18n');
 
         try {
-            msg = chrome.i18n.getMessage(elem.getAttribute('i18n'));
+            msg = chrome.i18n.getMessage(attr);
         } catch (err) {}
 
         if (!msg) {
+            elem.innerText = attr;
             return;
         }
 
         elem.innerText = msg;
     });
 
-    document.querySelector('#show-rulers').addEventListener('change', function () {
-        sendSettings();
+    $('#remove-all-rulers').addEventListener('click', function() {
+        sendMessage({type: 'removeAllRulers'});
     }, false);
 });

@@ -8,7 +8,8 @@
         "page": "background/background.html"
     },
     "permissions": [
-        "tabs", 
+        "storage",
+        "tabs",
         "http://*/*",
         "https://*/*"
     ],
@@ -17,7 +18,7 @@
           {
             "matches": ["<all_urls>"],
             "css": ["injections/ui.css"],
-            "js": ["injections/ui.js", "common/handlebars.js"]
+            "js": ["common/utils.js", "injections/ui.js", "common/handlebars.js", "common/lodash.min.js"]
           }
      ],
      "icons": {

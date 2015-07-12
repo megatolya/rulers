@@ -1,18 +1,19 @@
 .ruler {
     display: block;
-    overflow: hidden; position: absolute;
-    z-index: 8888888;
+    overflow: hidden;
     text-align: center;
+    z-index: 8888888;
     -webkit-user-select: none;
 }
 
 .ruler_highlighted {
+    box-shadow: 0 0 10px 0 rgba(243, 255, 60, 0.4);
+    opacity: 0.95 !important;
     z-index: 8888889;
-    opacity: 0.9 !important;
 }
 
 .ruler_highlighted .ruler__bg {
-    opacity: 0.9 !important;
+    opacity: 0.95 !important;
 }
 
 .ruler,
@@ -36,7 +37,6 @@
 
 .ruler__text {
     display: inline-block;
-    margin: 10px auto;
     position: relative;
     vertical-align: middle;
     z-index: 1;

@@ -44,7 +44,7 @@
                     <label for="color-input-{{id}}">Color</label>
                 </td>
                 <td class="ruler__td">
-                    <input type="color" value="{{color}}" id="color-input-{{id}}">
+                    <input tabindex="-1" type="color" value="{{color}}" id="color-input-{{id}}">
                 </td>
             </tr>
             <tr>
@@ -52,7 +52,18 @@
                     <label for="opacity-input-{{id}}">Opacity</label>
                 </td>
                 <td class="ruler__td">
-                    <input type="range" min="0" max="100" step="1" value="{{opacity}}" id="opacity-input-{{id}}">
+                    <input tabindex="-1" type="range" min="0" max="100" step="1" value="{{opacity}}" id="opacity-input-{{id}}">
+                </td>
+            </tr>
+            <tr>
+                <td class="ruler__td">
+                    <label for="position-input-{{id}}">Position</label>
+                </td>
+                <td class="ruler__td">
+                    <select tabindex="-1" id="position-input-{{id}}">
+                        <option value="absolute">absolute</option>
+                        <option value="fixed">fixed</option>
+                    </select>
                 </td>
             </tr>
         </table>

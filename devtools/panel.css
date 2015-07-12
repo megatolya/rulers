@@ -153,3 +153,16 @@ button:active {
     overflow-y: auto;
     height: calc(100% - 26px);
 }
+
+.settings {
+    padding: 40px;
+    font-size: 12px;
+}
+
+.settings td {
+    padding: 5px;
+}
+
+.settings td:first-child {
+    text-align: right;
+}

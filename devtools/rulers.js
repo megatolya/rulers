@@ -8,12 +8,13 @@ function Ruler(data) {
         'top',
         'left',
         'color',
+        'position',
         'opacity'
     ].forEach(function (prop) {
-        this['_' + prop] = data[prop];
+        this[prop] = data[prop];
     }, this);
 
-    rulers[this._id] = this;
+    rulers[this.id] = this;
 
     var container = document.createElement('div');
     container.innerHTML = templates.rulerSettings(data);
@@ -25,7 +26,7 @@ function Ruler(data) {
     ].forEach(function (prop) {
         this._getInput(prop)
             .addEventListener('change', function () {
-                this['_' + prop] = this._getInput(prop).value;
+                this[prop] = this._getInput(prop).value;
                 this._sendToBackground();
             }.bind(this), false);
     }, this);
@@ -35,44 +36,12 @@ function Ruler(data) {
         'height',
         'top',
         'left',
+        'position'
     ].forEach(function (prop) {
-        var unpreventableCodes = [9];
-        var input = this._getInput(prop);
-
-        input.addEventListener('change', function (e) {
+        this._getInput(prop).addEventListener('change', function (e) {
             this._actualizeInput(prop);
             this._sendToBackground();
         }.bind(this));
-
-        input.addEventListener('keydown', function (e) {
-                if (unpreventableCodes.indexOf(e.keyCode) !== -1) {
-                    return;
-                }
-
-                e.preventDefault();
-
-                var direction;
-
-                if (e.keyCode === 40 || e.keyCode === 74) {
-                    direction = 'down';
-                } else if (e.keyCode === 38 || e.keyCode === 75) {
-                    direction = 'up';
-                }
-
-                if (direction) {
-                    var absDiff = e.shiftKey ? 10 : 1;
-                    var diff;
-                    if (direction === 'down') {
-                        diff = -absDiff;
-                    } else {
-                        diff = absDiff;
-                    }
-
-                    this._getInput(prop).value = parseInt(this._getInput(prop).value, 10) + diff;
-                    this._actualizeInput(prop);
-                    this._sendToBackground();
-                }
-            }.bind(this), false);
     }, this);
 
     this.domElem.querySelector('.ruler__remove').addEventListener('click', function () {
@@ -94,13 +63,21 @@ function Ruler(data) {
 
     this.domElem.addEventListener('mouseleave', onOver.bind(this, 'out'));
     this.domElem.addEventListener('mouseenter', onOver.bind(this, 'over'));
+
+    this.append();
+
+    [
+        'position'
+    ].forEach(function (prop) {
+        this._getInput(prop).selectedIndex = ['absolute', 'fixed'].indexOf(data.position);
+    }, this);
 }
 
 Ruler.prototype = {
     constructor: Ruler,
 
     _getInput: function (type) {
-        var elem = this.domElem.querySelector('#' + type + '-input-' + this._id);
+        var elem = this.domElem.querySelector('#' + type + '-input-' + this.id);
         if (!elem) {
             throw new Error('Input not found ' + type);
         }
@@ -108,7 +85,11 @@ Ruler.prototype = {
     },
 
     _actualizeInput: function (name) {
-        this['_' + name] = this._getInput(name).value;
+        if (name === 'position') {
+            this.position = getSelectValue(this._getInput('position'));
+            return;
+        }
+        this[name] = this._getInput(name).value;
     },
 
     serialize: function () {
@@ -119,9 +100,10 @@ Ruler.prototype = {
             'top',
             'left',
             'color',
-            'opacity'
+            'opacity',
+            'position'
         ].reduce(function (output, prop) {
-            output[prop] = this['_' + prop];
+            output[prop] = this[prop];
             return output;
         }.bind(this), {});
     },
@@ -139,7 +121,19 @@ Ruler.prototype = {
 
     remove: function () {
         this.domElem.parentNode.removeChild(this.domElem);
-        delete rulers[this._id];
+        delete rulers[this.id];
+    },
+
+    change: function (ruler) {
+        [
+            'left',
+            'top'
+        ].forEach(function (prop) {
+            if (prop in ruler) {
+                this[prop] = ruler[prop];
+                this._getInput(prop).value = ruler[prop];
+            }
+        }, this);
     }
 };
 

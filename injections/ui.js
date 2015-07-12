@@ -1,6 +1,73 @@
 var runtimeNamespace = chrome.runtime && chrome.runtime.sendMessage ? "runtime" : "extension";
 
 var rulers = {};
+var DRAG_START_TIMEOUT = 100;
+
+function getOffset(element) {
+    var rect = element.getBoundingClientRect()
+
+    return {
+        top: rect.top + document.body.scrollTop,
+        left: rect.left + document.body.scrollLeft
+    };
+}
+
+function initDragAndDrop(ruler, e) {
+    var dndTimeout = setTimeout(function() {
+            clearTimeoutFn();
+            onDragStart(ruler, e);
+        }, DRAG_START_TIMEOUT),
+        clearTimeoutFn = function() {
+            clearTimeout(dndTimeout);
+            document.removeEventListener('mouseup', clearTimeoutFn, false);
+        };
+
+    document.addEventListener('mouseup', clearTimeoutFn, false);
+}
+
+var posDiff = null;
+var _onDrag;
+var _onDragEnd;
+
+function onDragStart(ruler, e) {
+    _onDrag = onDrag.bind(null, ruler);
+    _onDragEnd = onDragEnd.bind(null, ruler);
+    document.addEventListener('mousemove', _onDrag, false);
+    document.addEventListener('mouseup', _onDragEnd, false);
+
+    var offset = getOffset(ruler.domElem);
+
+    posDiff = {
+        left: e.clientX - offset.left,
+        top: e.clientY - offset.top
+    };
+
+    ruler.setOffset({
+        left: e.clientX - posDiff.left,
+        top: e.clientY - posDiff.top
+    });
+}
+
+function onDrag(ruler, e) {
+    var left = e.clientX - posDiff.left;
+    var top = e.clientY - posDiff.top;
+
+    if (ruler.position === 'fixed') {
+        left -= window.scrollX;
+        top -= window.scrollY;
+    }
+
+    ruler.setOffset({
+        left: left,
+        top: top
+    });
+}
+
+function onDragEnd(ruler, e) {
+    posDiff = null;
+    document.removeEventListener('mousemove', _onDrag, false);
+    document.removeEventListener('mouseup', _onDragEnd, false);
+}
 
 function Ruler(data) {
     [
@@ -10,12 +77,13 @@ function Ruler(data) {
         'top',
         'left',
         'color',
-        'opacity'
+        'opacity',
+        'position'
     ].forEach(function (prop) {
-        this['_' + prop] = data[prop];
+        this[prop] = data[prop];
     }, this);
 
-    rulers[this._id] = this;
+    rulers[this.id] = this;
 
     var container = document.createElement('div');
     container.innerHTML = templates.ruler();
@@ -25,6 +93,21 @@ function Ruler(data) {
 
     this.update();
     this.append();
+
+    this.domElem.addEventListener('mousedown', function (e) {
+        initDragAndDrop(this, e);
+    }.bind(this), false);
+
+    this._sendOffset = _.throttle(function () {
+        chrome[runtimeNamespace].sendMessage({
+            type: 'rulerOffsetChanged',
+            rulerId: this.id,
+            offset: {
+                left: this.left,
+                top: this.top
+            }
+        });
+    }.bind(this), 200);
 }
 
 Ruler.prototype = {
@@ -34,20 +117,53 @@ Ruler.prototype = {
         document.body.appendChild(this.domElem);
     },
 
-    get color() {
-        return this._color.toLowerCase();
-    },
-
     update: function () {
         var domElem = this.domElem;
 
-        ['top', 'left', 'width', 'height'].forEach(function (prop) {
-            domElem.style[prop] = this['_' + prop] + 'px';
+        [
+            'top',
+            'left',
+            'width',
+            'height'
+        ].forEach(function (prop) {
+            domElem.style[prop] = this[prop] + 'px';
         }, this);
 
-        this._textElem.innerText = this._width + 'x' + this._height;
+        [
+            'position'
+        ].forEach(function (prop) {
+            domElem.style[prop] = this[prop];
+        }, this);
+
+        var text = this._textElem;
+
+        text.innerText = this.width + 'x' + this.height;
         this._bgElem.style.backgroundColor = this.color;
-        this._bgElem.style.opacity = this._opacity / 100;
+        this._bgElem.style.opacity = this.opacity / 100;
+
+        var fontMinimum = 14;
+        var marginMinimum = 10;
+
+        if (this.width < 90) {
+            fontMinimum = Math.min(fontMinimum, 8);
+        }
+
+        if (this.height < 29) {
+            fontMinimum = Math.min(fontMinimum, 8);
+            marginMinimum = Math.min(marginMinimum, 6);
+        }
+
+        if (this.height < 20) {
+            marginMinimum = Math.min(marginMinimum, 4);
+        }
+
+        if (this.height < 12) {
+            marginMinimum = Math.min(marginMinimum, 0);
+        }
+
+        text.style.fontSize = fontMinimum + 'px';
+        text.style.margin = marginMinimum + 'px auto';
+        text.style.color = utils.getFontColorByBackgroundColor(this.color);
     },
 
     change: function (data) {
@@ -58,9 +174,10 @@ Ruler.prototype = {
             'top',
             'left',
             'color',
-            'opacity'
+            'opacity',
+            'position'
         ].forEach(function (prop) {
-            this['_' + prop] = data[prop];
+            this[prop] = data[prop];
         }, this);
 
         this.update();
@@ -68,7 +185,7 @@ Ruler.prototype = {
 
     remove: function () {
         this.domElem.parentNode.removeChild(this.domElem);
-        delete rulers[this._id];
+        delete rulers[this.id];
     },
 
     highlight: function (on) {
@@ -77,6 +194,16 @@ Ruler.prototype = {
         } else {
             this.domElem.classList.remove('ruler_highlighted');
         }
+    },
+
+    setOffset: function(coords) {
+        var element = this.domElem;
+
+        this.left = coords.left;
+        this.top = coords.top;
+        element.style.left = coords.left;
+        element.style.top = coords.top;
+        this._sendOffset();
     }
 };
 
@@ -85,6 +212,7 @@ Ruler.getById = function (id, soft) {
 };
 
 var templates;
+
 chrome[runtimeNamespace].onMessage.addListener(function(event, sender, sendResponse) {
     if (event.fromDevtools) {
         return;

@@ -1,6 +1,6 @@
 var INITIAL_WIDTH = 100;
 var INITIAL_HEIGHT = 100;
-var INITIAL_OPACITY = 30;
+var INITIAL_OPACITY = 70;
 var INITIAL_COORDS = {
     left: 15,
     top: 15
@@ -61,19 +61,25 @@ Ruler.prototype = {
     constructor: Ruler,
 
     remove: function () {
-        var settings = getSettings(this.tabId);
-        if (settings.showRulers) {
-            sendMessageToTab(this.tabId, {type: 'rulerRemoved', ruler: this.id});
-        }
+        getSettings(this.tabId, function (settings) {
+            if (settings.showRulers) {
+                sendMessageToTab(this.tabId, {type: 'rulerRemoved', ruler: this.id});
+            }
 
-        this.port.postMessage({type: 'rulerRemoved', ruler: this.id});
+            this.port.postMessage({type: 'rulerRemoved', ruler: this.id});
 
-        delete idToRule[this.id];
-        tabRulers[this.tabId].splice(tabRulers[this.tabId].indexOf(this), 1);
+            delete idToRule[this.id];
+            tabRulers[this.tabId].splice(tabRulers[this.tabId].indexOf(this), 1);
+        }.bind(this));
     },
 
-    change: function (ruler) {
+    change: function (diff) {
+        var ruler = {
+            id: this.id
+        };
+
         [
+            'position',
             'width',
             'height',
             'top',
@@ -81,16 +87,20 @@ Ruler.prototype = {
             'color',
             'opacity'
         ].forEach(function (prop) {
-            this[prop] = ruler[prop];
+            if (prop in diff) {
+                this[prop] = diff[prop];
+            }
+            ruler[prop] = this[prop];
         }, this);
 
+        getSettings(this.tabId, function (settings) {
+            if (settings.showRulers) {
+                sendMessageToTab(this.tabId, {type: 'rulerChanged', ruler: ruler});
+            }
 
-        var settings = getSettings(this.tabId);
-        if (settings.showRulers) {
-            sendMessageToTab(this.tabId, {type: 'rulerChanged', ruler: ruler});
-        }
-
-        this.port.postMessage({type: 'rulerRemoved', ruler: ruler});
+            console.log('alalala', ruler);
+            this.port.postMessage({type: 'rulerChanged', ruler: ruler});
+        }.bind(this));
     },
 
     setPort: function (port) {

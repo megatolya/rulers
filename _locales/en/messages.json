@@ -25,5 +25,11 @@
     },
     "allRulersWillBeRemoved": {
         "message": "All rulers will be removed from this page"
+    },
+    "createRulersInViewport": {
+        "message": "Create rulers always in viewport"
+    },
+    "rulerDefaultPosition": {
+        "message": "Rulers default position"
     }
 }
