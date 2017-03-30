@@ -25,6 +25,34 @@ function initDragAndDrop(ruler, e) {
     document.addEventListener('mouseup', clearTimeoutFn, false);
 }
 
+const initialStyles = `
+.ruler__bg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    opacity: 0.3;
+    background: red;
+    left: 0;
+    position: absolute;
+    top: 0;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.ruler__text {
+    z-index: 1;
+    position: absolute;
+    top: 50%;
+    color: white;
+    display: block;
+    left: 50%;
+    transform: translate3d(-50%, -50%, 0);
+    white-space: nowrap;
+    -webkit-user-select: none;
+    user-select: none;
+}
+`;
+
 var posDiff = null;
 var _onDrag;
 var _onDragEnd;
@@ -74,6 +102,8 @@ function Ruler(data) {
         'id',
         'width',
         'height',
+        'bottom',
+        'right',
         'top',
         'left',
         'color',
@@ -85,18 +115,21 @@ function Ruler(data) {
 
     rulers[this.id] = this;
 
-    var container = document.createElement('div');
-    container.innerHTML = templates.ruler();
-    var domElem = this.domElem = container.firstChild;
-    this._bgElem = domElem.querySelector('.ruler__bg');
-    this._textElem = domElem.querySelector('.ruler__text');
+    var domElem = this.domElem = document.createElement('div');
+    const shadow = domElem.createShadowRoot();
+    shadow.appendChild(this._bgElem = document.createElement('div'));
+    this._bgElem.classList.add('ruler__bg');
+    shadow.appendChild(this._textElem = document.createElement('span'));
+    this._textElem.classList.add('ruler__text');
+    shadow.appendChild(this._style = document.createElement('style'));
+    this._style.innerHTML = initialStyles;
 
     this.update();
     this.append();
 
-    this.domElem.addEventListener('mousedown', function (e) {
-        initDragAndDrop(this, e);
-    }.bind(this), false);
+    // this.domElem.addEventListener('mousedown', function (e) {
+        // initDragAndDrop(this, e);
+    // }.bind(this), false);
 
     this._sendOffset = _.throttle(function () {
         chrome[runtimeNamespace].sendMessage({
@@ -121,12 +154,16 @@ Ruler.prototype = {
         var domElem = this.domElem;
 
         [
+            'bottom',
+            'right',
             'top',
             'left',
             'width',
             'height'
         ].forEach(function (prop) {
-            domElem.style[prop] = this[prop] + 'px';
+            domElem.style[prop] = this[prop]
+                ? (this[prop] + 'px')
+                : null;
         }, this);
 
         [
@@ -142,7 +179,6 @@ Ruler.prototype = {
         this._bgElem.style.opacity = this.opacity / 100;
 
         var fontMinimum = 14;
-        var marginMinimum = 10;
 
         if (this.width < 90) {
             fontMinimum = Math.min(fontMinimum, 8);
@@ -150,19 +186,9 @@ Ruler.prototype = {
 
         if (this.height < 29) {
             fontMinimum = Math.min(fontMinimum, 8);
-            marginMinimum = Math.min(marginMinimum, 6);
-        }
-
-        if (this.height < 20) {
-            marginMinimum = Math.min(marginMinimum, 4);
-        }
-
-        if (this.height < 12) {
-            marginMinimum = Math.min(marginMinimum, 0);
         }
 
         text.style.fontSize = fontMinimum + 'px';
-        text.style.margin = marginMinimum + 'px auto';
         text.style.color = utils.getFontColorByBackgroundColor(this.color);
     },
 
@@ -173,6 +199,8 @@ Ruler.prototype = {
             'height',
             'top',
             'left',
+            'bottom',
+            'right',
             'color',
             'opacity',
             'position'

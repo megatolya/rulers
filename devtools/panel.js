@@ -89,7 +89,7 @@ function sendSettings() {
     });
 }());
 
-// This sends an object to the background page 
+// This sends an object to the background page
 // where it can be relayed to the inspected page
 function sendMessage(event) {
     event.tabId = chrome.devtools.inspectedWindow.tabId;

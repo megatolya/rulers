@@ -6,7 +6,6 @@
 </script>
 <script name="rulerSettings" type="text/html">
     <form class="ruler">
-        <i class="ruler__remove" title="{{i18n 'removeRuler'}}"></i>
         <table>
             <tr>
                 <td class="ruler__td">
@@ -25,18 +24,26 @@
             </tr>
             <tr>
                 <td class="ruler__td">
-                    <label for="left-input-{{id}}">X</label>
+                    <select tabindex="-1" id="positionXType-input-{{id}}">
+                        {{{option 'left' positionXType}}}
+                        {{{option 'right' positionXType}}}
+                    </select>
                 </td>
                 <td class="ruler__td">
-                    <input id="left-input-{{id}}" type="number" min="1" value="{{left}}">
+                    <input id="left-input-{{id}}" type="{{{inputType 'left' positionXType}}}" value="{{left}}">
+                    <input id="right-input-{{id}}" type="{{{inputType 'right' positionXType}}}" value="{{right}}">
                 </td>
             </tr>
             <tr>
                 <td class="ruler__td">
-                    <label for="top-input-{{id}}">Y</label>
+                    <select tabindex="-1" id="positionYType-input-{{id}}">
+                        {{{option 'top' positionYType}}}
+                        {{{option 'bottom' positionYType}}}
+                    </select>
                 </td>
                 <td class="ruler__td">
-                    <input id="top-input-{{id}}" type="number" min="1" value="{{top}}">
+                    <input id="top-input-{{id}}" type="{{{inputType 'top' positionYType}}}" value="{{top}}">
+                    <input id="bottom-input-{{id}}" type="{{{inputType 'bottom' positionYType}}}" value="{{bottom}}">
                 </td>
             </tr>
             <tr>
@@ -69,6 +76,7 @@
             <tr>
                 <td class="ruler__td" colspan="2">
                     <button tabindex="-1" type="button" id="copy-input-{{id}}">Copy ruler</button>
+                    <button class="ruler__remove" tabindex="-1" type="button">{{i18n 'removeRuler'}}</button>
                 </td>
             </tr>
         </table>

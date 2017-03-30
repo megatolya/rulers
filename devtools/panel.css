@@ -27,7 +27,6 @@ html {
 }
 
 button {
-    margin-right: 10px;
     padding: 2px 5px;
     background-color: white;
     border: 1px solid rgb(208, 208, 208);
@@ -37,11 +36,6 @@ button {
 button:active {
     background: rgb(229, 229, 229);
 }
-
-#remove-all-rulers {
-    margin-right: 20px;
-}
-
 
 .sidebar__status-bar,
 .editor__status-bar {
@@ -83,6 +77,10 @@ button:active {
     font-size: 12px;
 }
 
+.status-bar-control {
+    margin-right: 13px;
+}
+
 .sidebar__menu button.selected {
     color: white;
     background: #3476dc;
@@ -104,23 +102,6 @@ button:active {
     display: inline-block;
     margin: 10px;
     padding: 10px;
-}
-
-.ruler__remove {
-    background: url(images/remove.svg);
-    width: 13px;
-    height: 13px;
-    display: inline-block;
-    background-size: 13px;
-    position: absolute;
-    right: 7px;
-    top: 7px;
-    opacity: 0.5;
-    cursor: pointer
-}
-
-.ruler__remove:hover {
-    opacity: 0.9;
 }
 
 .ruler__td:first-child {

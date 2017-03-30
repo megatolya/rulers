@@ -1,16 +1,8 @@
-var INITIAL_WIDTH = 100;
-var INITIAL_HEIGHT = 100;
-var INITIAL_OPACITY = 70;
-var INITIAL_COORDS = {
-    left: 15,
-    top: 15
-};
-
 var id = 0;
 var rulersPositionRatio = 0;
 var leftDelta = 0;
 
-var colors = _.shuffle('aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue darkslategray darkturquoise darkviolet deeppink deepskyblue dimgray dodgerblue firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow honeydew hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue slateblue slategray snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen'.split(' '));
+var colors = _.shuffle('aliceblue aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue darkslategray darkturquoise darkviolet deeppink deepskyblue dimgray dodgerblue firebrick forestgreen fuchsia gainsboro gold goldenrod gray green greenyellow honeydew hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream mistyrose moccasin navy oldlace olive olivedrab orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue slateblue slategray snow springgreen steelblue tan teal thistle tomato turquoise violet wheat yellow yellowgreen'.split(' '));
 
 function throwErr(text) {
     throw new Error(text);
@@ -75,12 +67,17 @@ Ruler.prototype = {
             'height',
             'top',
             'left',
+            'right',
+            'bottom',
             'color',
             'opacity'
         ].forEach(function (prop) {
             if (prop in diff) {
                 this[prop] = diff[prop];
+            } else {
+                delete this[prop];
             }
+
             ruler[prop] = this[prop];
         }, this);
 
@@ -89,7 +86,6 @@ Ruler.prototype = {
                 sendMessageToTab(this.tabId, {type: 'rulerChanged', ruler: ruler});
             }
 
-            console.log('alalala', ruler);
             this.port.postMessage({type: 'rulerChanged', ruler: ruler});
         }.bind(this));
     },
@@ -134,6 +130,11 @@ Ruler.removeAll = function (tabId) {
 };
 
 Ruler.create = function (tabId) {
+    var INITIAL_COORDS = {
+        left: 15,
+        top: 15
+    };
+
     rulersPositionRatio++;
     if (rulersPositionRatio > 15) {
         rulersPositionRatio = 1;
@@ -141,12 +142,16 @@ Ruler.create = function (tabId) {
     }
 
     var data = {
-        width: INITIAL_WIDTH,
-        height: INITIAL_HEIGHT,
+        width: 100,
+        height: 100,
         top: INITIAL_COORDS.top * rulersPositionRatio,
         left: INITIAL_COORDS.left * rulersPositionRatio + leftDelta,
-        opacity: INITIAL_OPACITY,
-        color: colors[(count++) % colors.length]
+        right: 0,
+        bottom: 0,
+        opacity: 70,
+        color: colors[(count++) % colors.length],
+        positionXType: 'left',
+        positionYType: 'top'
     };
     return new Ruler(tabId, data);
 };

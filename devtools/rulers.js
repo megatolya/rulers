@@ -7,12 +7,19 @@ function Ruler(data) {
         'height',
         'top',
         'left',
+        'bottom',
+        'right',
         'color',
         'position',
-        'opacity'
+        'opacity',
+        'positionXType',
+        'positionYType'
     ].forEach(function (prop) {
         this[prop] = data[prop];
     }, this);
+
+    data.x = this.positionXType === 'left' ? data.left : data.right;
+    data.y = this.positionYType === 'top' ? data.top : data.bottom;
 
     rulers[this.id] = this;
 
@@ -36,7 +43,11 @@ function Ruler(data) {
         'height',
         'top',
         'left',
-        'position'
+        'bottom',
+        'right',
+        'position',
+        'positionXType',
+        'positionYType'
     ].forEach(function (prop) {
         this._getInput(prop).addEventListener('change', function (e) {
             this._actualizeInput(prop);
@@ -97,11 +108,11 @@ function Ruler(data) {
             }
 
             if (e.keyCode === 40) {
-                val -= 10;
+                val -= 9;
             }
 
             if (e.keyCode === 38) {
-                val += 10;
+                val += 9;
             }
 
             input.value = val.toString();
@@ -121,27 +132,50 @@ Ruler.prototype = {
     },
 
     _actualizeInput: function (name) {
-        if (name === 'position') {
-            this.position = getSelectValue(this._getInput('position'));
-            return;
+        switch (name) {
+            case 'positionXType':
+            case 'positionYType': {
+                if (this.positionXType === 'left') {
+                    this._getInput('left').setAttribute('type', 'number');
+                    this._getInput('right').setAttribute('type', 'hidden');
+                } else {
+                    this._getInput('left').setAttribute('type', 'hidden');
+                    this._getInput('right').setAttribute('type', 'number');
+                }
+
+                if (this.positionYType === 'top') {
+                    this._getInput('top').setAttribute('type', 'number');
+                    this._getInput('bottom').setAttribute('type', 'hidden');
+                } else {
+                    this._getInput('top').setAttribute('type', 'hidden');
+                    this._getInput('bottom').setAttribute('type', 'number');
+                }
+            }
+
+            case 'position':
+                this[name] = getSelectValue(this._getInput(name));
+                return;
+
+            default:
+                this[name] = parseInt(this._getInput(name).value, 10);
         }
-        this[name] = parseInt(this._getInput(name).value, 10);
     },
 
     serialize: function () {
-        return [
+        const res = [
             'id',
             'width',
             'height',
-            'top',
-            'left',
             'color',
             'opacity',
-            'position'
+            'position',
+            this.positionXType === 'left' ? 'left' : 'right',
+            this.positionYType === 'top' ? 'top' : 'bottom',
         ].reduce(function (output, prop) {
             output[prop] = this[prop];
             return output;
         }.bind(this), {});
+        return res;
     },
 
     _sendToBackground: function () {
