@@ -8,12 +8,8 @@
 }
 
 .ruler_highlighted {
-    opacity: 0.95 !important;
+    box-shadow: 0 0 2px 2px rgba(255, 255, 0, 0.2);
     z-index: 8888889;
-}
-
-.ruler_highlighted .ruler__bg {
-    opacity: 0.95 !important;
 }
 
 .ruler,

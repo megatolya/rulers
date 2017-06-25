@@ -56,7 +56,7 @@ Ruler.prototype = {
         }.bind(this));
     },
 
-    change: function (diff) {
+    change: function (diff, soft) {
         var ruler = {
             id: this.id
         };
@@ -72,10 +72,14 @@ Ruler.prototype = {
             'color',
             'opacity'
         ].forEach(function (prop) {
-            if (prop in diff) {
+            if (soft) {
                 this[prop] = diff[prop];
             } else {
-                delete this[prop];
+                if (prop in diff) {
+                    this[prop] = diff[prop];
+                } else {
+                    delete this[prop];
+                }
             }
 
             ruler[prop] = this[prop];

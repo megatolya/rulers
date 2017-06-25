@@ -18,9 +18,6 @@ function Ruler(data) {
         this[prop] = data[prop];
     }, this);
 
-    data.x = this.positionXType === 'left' ? data.left : data.right;
-    data.y = this.positionYType === 'top' ? data.top : data.bottom;
-
     rulers[this.id] = this;
 
     var container = document.createElement('div');
@@ -93,6 +90,8 @@ function Ruler(data) {
         'height',
         'top',
         'left',
+        'right',
+        'bottom'
     ].forEach(function (inputName) {
         var input = this._getInput(inputName);
 
@@ -133,9 +132,10 @@ Ruler.prototype = {
 
     _actualizeInput: function (name) {
         switch (name) {
-            case 'positionXType':
-            case 'positionYType': {
-                if (this.positionXType === 'left') {
+            case 'positionXType': {
+                const type = getSelectValue(this._getInput(name));
+
+                if (type === 'left') {
                     this._getInput('left').setAttribute('type', 'number');
                     this._getInput('right').setAttribute('type', 'hidden');
                 } else {
@@ -143,13 +143,23 @@ Ruler.prototype = {
                     this._getInput('right').setAttribute('type', 'number');
                 }
 
-                if (this.positionYType === 'top') {
+                this[name] = type;
+                return;
+            }
+
+            case 'positionYType': {
+                const type = getSelectValue(this._getInput(name));
+
+                if (type === 'top') {
                     this._getInput('top').setAttribute('type', 'number');
                     this._getInput('bottom').setAttribute('type', 'hidden');
                 } else {
                     this._getInput('top').setAttribute('type', 'hidden');
                     this._getInput('bottom').setAttribute('type', 'number');
                 }
+
+                this[name] = type;
+                return;
             }
 
             case 'position':

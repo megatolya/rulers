@@ -138,10 +138,6 @@ chrome[runtimeNamespace].onMessage.addListener(function (message, sender, sendRe
                     });
                 }
                 break;
-
-            case 'rulerOffsetChanged':
-                Ruler.getById(message.rulerId).change(message.offset);
-                break;
         }
     });
 

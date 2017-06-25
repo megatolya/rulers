@@ -12,19 +12,6 @@ function getOffset(element) {
     };
 }
 
-function initDragAndDrop(ruler, e) {
-    var dndTimeout = setTimeout(function() {
-            clearTimeoutFn();
-            onDragStart(ruler, e);
-        }, DRAG_START_TIMEOUT),
-        clearTimeoutFn = function() {
-            clearTimeout(dndTimeout);
-            document.removeEventListener('mouseup', clearTimeoutFn, false);
-        };
-
-    document.addEventListener('mouseup', clearTimeoutFn, false);
-}
-
 const initialStyles = `
 .ruler__bg {
     display: block;
@@ -50,52 +37,9 @@ const initialStyles = `
     white-space: nowrap;
     -webkit-user-select: none;
     user-select: none;
+    font-family: monospace;
 }
 `;
-
-var posDiff = null;
-var _onDrag;
-var _onDragEnd;
-
-function onDragStart(ruler, e) {
-    _onDrag = onDrag.bind(null, ruler);
-    _onDragEnd = onDragEnd.bind(null, ruler);
-    document.addEventListener('mousemove', _onDrag, false);
-    document.addEventListener('mouseup', _onDragEnd, false);
-
-    var offset = getOffset(ruler.domElem);
-
-    posDiff = {
-        left: e.clientX - offset.left,
-        top: e.clientY - offset.top
-    };
-
-    ruler.setOffset({
-        left: e.clientX - posDiff.left,
-        top: e.clientY - posDiff.top
-    });
-}
-
-function onDrag(ruler, e) {
-    var left = e.clientX - posDiff.left;
-    var top = e.clientY - posDiff.top;
-
-    if (ruler.position === 'fixed') {
-        left -= window.scrollX;
-        top -= window.scrollY;
-    }
-
-    ruler.setOffset({
-        left: left,
-        top: top
-    });
-}
-
-function onDragEnd(ruler, e) {
-    posDiff = null;
-    document.removeEventListener('mousemove', _onDrag, false);
-    document.removeEventListener('mouseup', _onDragEnd, false);
-}
 
 function Ruler(data) {
     [
@@ -126,21 +70,6 @@ function Ruler(data) {
 
     this.update();
     this.append();
-
-    // this.domElem.addEventListener('mousedown', function (e) {
-        // initDragAndDrop(this, e);
-    // }.bind(this), false);
-
-    this._sendOffset = _.throttle(function () {
-        chrome[runtimeNamespace].sendMessage({
-            type: 'rulerOffsetChanged',
-            rulerId: this.id,
-            offset: {
-                left: this.left,
-                top: this.top
-            }
-        });
-    }.bind(this), 200);
 }
 
 Ruler.prototype = {
@@ -161,7 +90,7 @@ Ruler.prototype = {
             'width',
             'height'
         ].forEach(function (prop) {
-            domElem.style[prop] = this[prop]
+            domElem.style[prop] = prop in this
                 ? (this[prop] + 'px')
                 : null;
         }, this);
@@ -174,7 +103,7 @@ Ruler.prototype = {
 
         var text = this._textElem;
 
-        text.innerText = this.width + 'x' + this.height;
+        text.innerText = this.width + '×' + this.height;
         this._bgElem.style.backgroundColor = this.color;
         this._bgElem.style.opacity = this.opacity / 100;
 
@@ -205,7 +134,11 @@ Ruler.prototype = {
             'opacity',
             'position'
         ].forEach(function (prop) {
-            this[prop] = data[prop];
+            if (prop in data) {
+                this[prop] = data[prop];
+            } else {
+                delete this[prop];
+            }
         }, this);
 
         this.update();
@@ -231,7 +164,6 @@ Ruler.prototype = {
         this.top = coords.top;
         element.style.left = coords.left;
         element.style.top = coords.top;
-        this._sendOffset();
     }
 };
 
