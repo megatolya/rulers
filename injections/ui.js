@@ -60,6 +60,7 @@ function Ruler(data) {
     rulers[this.id] = this;
 
     var domElem = this.domElem = document.createElement('div');
+    this.domElem.classList.add('ruler');
     const shadow = domElem.createShadowRoot();
     shadow.appendChild(this._bgElem = document.createElement('div'));
     this._bgElem.classList.add('ruler__bg');
